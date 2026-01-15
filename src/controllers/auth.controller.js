@@ -81,24 +81,3 @@ export const login = async (req, res, next) => {
   }
 };
 
-export const me = async (req, res, next) => {
-  try {
-    const { userId } = req.user;
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      const error = new Error("User does not exist");
-      error.statusCode = 401;
-      throw error;
-    }
-
-    res.status(200).json({
-      message: "User fetched successfully",
-      success: true,
-      data: user,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
