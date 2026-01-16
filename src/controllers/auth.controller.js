@@ -3,8 +3,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRE_IN, JWT_SECRET } from "../config/env.js";
 
-const SALT = 10;
-
 export const register = async (req, res, next) => {
   try {
     const { firstName, lastName, email, password } = req.body;
@@ -16,13 +14,11 @@ export const register = async (req, res, next) => {
       throw error;
     }
 
-    const hashedPassword = await bcrypt.hash(password, SALT);
-
     const user = await User.create({
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password,
     });
 
     const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
@@ -62,9 +58,16 @@ export const login = async (req, res, next) => {
       throw error;
     }
 
+    if (!user.isActive) {
+      user.isActive = true;
+      user.deactivatedAt = null;
+      await user.save();
+    }
+
     const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
       expiresIn: JWT_EXPIRE_IN,
     });
+    
 
     user.password = undefined;
 
@@ -80,4 +83,3 @@ export const login = async (req, res, next) => {
     next(error);
   }
 };
-
