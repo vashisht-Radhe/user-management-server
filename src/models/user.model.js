@@ -45,6 +45,18 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    deactivatedBy: {
+      type: String,
+      enum: ["user", "admin"],
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true },
 );
@@ -53,6 +65,10 @@ userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
 });
+
+// userSchema.pre(/^find/, function () {
+//   this.where({ isDeleted: false });
+// });
 
 const User = mongoose.model("User", userSchema);
 

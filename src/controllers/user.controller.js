@@ -1,4 +1,3 @@
-import { SALT_ROUNDS } from "../config/env.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { throwError } from "../utils/errorHandler.js";
@@ -9,8 +8,8 @@ export const getMyProfile = async (req, res, next) => {
 
     const user = await User.findById(userId);
 
-    if (!user) {
-      throwError("Unauthorized", 401);
+    if (!user || user.isDeleted || !user.isActive) {
+      throwError("Account not accessible", 403);
     }
 
     res.status(200).json({
@@ -28,15 +27,18 @@ export const updateMyProfile = async (req, res, next) => {
     const { userId } = req.user;
     const { firstName, lastName } = req.body;
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $set: { firstName, lastName } },
-      { new: true, runValidators: true },
-    );
+    const user = await User.findById(userId);
 
-    if (!user) {
-      throwError("User not found", 404);
+    if (!user || user.isDeleted || !user.isActive) {
+      throwError("Account not accessible", 403);
     }
+
+    if (!firstName && !lastName) {
+      throwError("Nothing to update", 400);
+    }
+
+    user.firstName = firstName ?? user.firstName;
+    user.lastName = lastName ?? user.lastName;
 
     res.status(200).json({
       success: true,
@@ -53,14 +55,14 @@ export const changePassword = async (req, res, next) => {
     const { userId } = req.user;
     const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword) {
-      throwError("Current password and new password are required", 400);
-    }
-
     const user = await User.findById(userId).select("+password");
 
-    if (!user) {
-      throwError("Unauthorized", 401);
+    if (!user || user.isDeleted || !user.isActive) {
+      throwError("Account not accessible", 403);
+    }
+
+    if (!currentPassword || !newPassword) {
+      throwError("Current password and new password are required", 400);
     }
 
     const isPasswordMatch = await bcrypt.compare(
@@ -70,6 +72,10 @@ export const changePassword = async (req, res, next) => {
 
     if (!isPasswordMatch) {
       throwError("Current password is incorrect", 403);
+    }
+
+    if (currentPassword === newPassword) {
+      throwError("New password must be different", 400);
     }
 
     user.password = newPassword;
@@ -95,12 +101,17 @@ export const deactivateAccount = async (req, res, next) => {
       throwError("Unauthorized", 401);
     }
 
+    if (user.isDeleted) {
+      throwError("Account is deleted", 403);
+    }
+
     if (!user.isActive) {
-      throwError("Account already deactivated", 400);
+      throwError("Account already deactivated", 403);
     }
 
     user.isActive = false;
     user.deactivatedAt = new Date();
+    user.deactivatedBy = "user";
 
     await user.save();
 
@@ -123,8 +134,9 @@ export const deleteAccount = async (req, res, next) => {
     }
 
     const user = await User.findById(userId).select("+password");
-    if (!user) {
-      throwError("User not found", 404);
+
+    if (!user || user.isDeleted) {
+      throwError("Account not accessible", 403);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -132,7 +144,11 @@ export const deleteAccount = async (req, res, next) => {
       throwError("Incorrect Password", 401);
     }
 
-    await User.findByIdAndDelete(userId);
+    user.isDeleted = true;
+    user.deletedAt = new Date();
+    user.isActive = false;
+
+    await user.save();
 
     res.status(200).json({
       success: true,

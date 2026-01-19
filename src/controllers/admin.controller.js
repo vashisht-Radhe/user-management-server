@@ -4,12 +4,23 @@ import { throwError } from "../utils/errorHandler.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find();
+    const { includeDelete } = req.query;
+
+    const filter = {};
+
+    if (includeDelete !== "true") {
+      filter.isDeleted = false;
+    }
+
+    const users = await User.find(filter);
+
+    const totalUsers = await User.countDocuments(filter);
 
     res.status(200).json({
       success: true,
       message: "Users retrieved successfully",
       data: users,
+      totalUser: totalUsers,
     });
   } catch (error) {
     next(error);
@@ -54,11 +65,9 @@ export const updateUserRole = async (req, res, next) => {
       throwError("Invalid role value", 400);
     }
 
-    // prevent admin from changing their own role
     if (userId === id) {
       throwError("You cannot change your own role", 403);
     }
-    console.log(req.user);
 
     const user = await User.findByIdAndUpdate(
       id,
@@ -70,6 +79,8 @@ export const updateUserRole = async (req, res, next) => {
       throwError("User not found", 404);
     }
 
+    if (user.isDeleted) throwError("Cannot update role of deleted user", 403);
+
     res.status(200).json({
       success: true,
       message: "Role updated successfully",
@@ -79,4 +90,3 @@ export const updateUserRole = async (req, res, next) => {
     next(error);
   }
 };
-

@@ -18,8 +18,10 @@ const errorMiddleware = (err, req, res, next) => {
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    statusCode = 400;
-    message = "Duplicate field value entered";
+    statusCode = 409;
+
+    const field = Object.keys(err.keyValue)[0];
+    message = `${field} already exists`;
   }
 
   // Mongoose validation error
