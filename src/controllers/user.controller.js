@@ -1,6 +1,10 @@
+import path from "path";
+import fs from "fs";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { throwError } from "../utils/errorHandler.js";
+import { safeDelete } from "../utils/file.util.js";
+import { getUploadPath } from "../utils/uploadPath.js";
 
 export const getMyProfile = async (req, res, next) => {
   try {
@@ -87,6 +91,43 @@ export const changePassword = async (req, res, next) => {
       message: "Password changed successfully",
     });
   } catch (error) {
+    next(error);
+  }
+};
+
+export const updateProfilePic = async (req, res, next) => {
+  let uploadedFilePath;
+
+  try {
+    if (!req.file) {
+      throwError("No file uploaded", 400);
+    }
+
+    uploadedFilePath = getUploadPath(req.file.filename);
+
+    const user = await User.findById(req.user.userId).select("avatar");
+    if (!user) {
+      throwError("User not found", 404);
+    }
+
+    const oldAvatar = user.avatar;
+    user.avatar = req.file.filename;
+
+    await user.save();
+
+    if (oldAvatar) {
+      await safeDelete(getUploadPath(oldAvatar));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile picture updated successfully",
+      avatar: user.avatar,
+    });
+  } catch (error) {
+    if (uploadedFilePath) {
+      await safeDelete(uploadedFilePath);
+    }
     next(error);
   }
 };
