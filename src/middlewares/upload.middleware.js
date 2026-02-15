@@ -2,7 +2,9 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
+import { fileTypeFromFile } from "file-type";
 
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png"];
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/jpg"];
 
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -37,4 +39,26 @@ const upload = multer({
   limits: { fileSize: 4 * 1024 * 1024 },
 });
 
-export const uploadSingle = (filename) => upload.single(filename);
+const validateSignature = async (filePath) => {
+  const type = await fileTypeFromFile(filePath);
+
+  if (!type || !ALLOWED_EXTENSIONS.includes(type.ext)) {
+    await fs.unlink(filePath);
+    throw new Error("Invalid file signature");
+  }
+};
+
+export const uploadSingle = (fieldName) => [
+  upload.single(fieldName),
+
+  async (req, res, next) => {
+    try {
+      if (req.file) {
+        await validateSignature(req.file.path);
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  },
+];

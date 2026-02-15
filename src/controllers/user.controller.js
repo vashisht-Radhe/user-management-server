@@ -67,7 +67,9 @@ export const updateProfilePic = asyncHandler(async (req, res, next) => {
   }
 
   const oldAvatar = user.avatar;
-  user.avatar = req.file.filename;
+  // user.avatar = req.file.filename;
+
+  user.avatar = `/uploads/${req.file.filename}`;
 
   await user.save();
 
@@ -105,4 +107,3 @@ export const deleteAccount = asyncHandler(async (req, res, next) => {
     message: "Your account has been permanently deleted",
   });
 });
-  

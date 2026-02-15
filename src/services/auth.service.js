@@ -1,10 +1,11 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { JWT_EXPIRE_IN, JWT_SECRET, PORT } from "../config/env.js";
+import { env } from "../config/env.js";
 import { generateOtp } from "../utils/generateOtp.js";
 import { throwError } from "../utils/errorHandler.js";
 import crypto from "crypto";
+import { sendForgetPassword } from "./email.service.js";
 
 export const registerService = async ({
   firstName,
@@ -47,9 +48,14 @@ export const registerService = async ({
     otpLastSent: Date.now(),
   });
 
-  const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRE_IN,
-  });
+  const token = jwt.sign(
+    { userId: user._id, role: user.role },
+    env.JWT_SECRET,
+    {
+      expiresIn: env.JWT_EXPIRE_IN,
+    },
+  );
+
 
   // user.password = undefined;
   const userObject = user.toObject();
@@ -103,16 +109,18 @@ export const loginService = async ({ email, password }) => {
     throwError("Invalid email or password", 401);
   }
 
-  const token = jwt.sign({ userId: user._id, role: user.role }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRE_IN,
-  });
+  const token = jwt.sign(
+    { userId: user._id, role: user.role },
+    env.JWT_SECRET,
+    {
+      expiresIn: env.JWT_EXPIRE_IN,
+    },
+  );
+
 
   user.password = undefined;
 
-  return {
-    user,
-    token,
-  };
+  return { user, token };
 };
 
 export const forgetPasswordService = async (email) => {
@@ -131,10 +139,18 @@ export const forgetPasswordService = async (email) => {
 
   await user.save();
 
-  const resetLink = `http://localhost:${PORT}/reset-password?token=${token}`;
+  const resetLink = `http://localhost:${env.FRONTEND_URL}/reset-password?token=${token}`;
 
-  // DEV MODE
   console.log("Password Reset Link:", resetLink);
+
+  const expiresText = "15 minutes";
+
+  await sendForgetPassword({
+    email: user.email,
+    name: user.name,
+    resetLink,
+    expiresText,
+  });
 
   return;
 };

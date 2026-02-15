@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { SALT_ROUNDS } from "../config/env.js";
+import { env } from "../config/env.js";
 
 export const ROLES = ["user", "admin"];
 
@@ -113,7 +113,7 @@ userSchema.index({ isActive: 1 });
 
 userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
-  this.password = await bcrypt.hash(this.password, SALT_ROUNDS);
+  this.password = await bcrypt.hash(this.password, env.SALT);
 });
 
 userSchema.pre("save", function () {

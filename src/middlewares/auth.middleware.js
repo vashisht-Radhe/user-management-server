@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config/env.js";
+import { env } from "../config/env.js";
 import User from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -13,7 +13,7 @@ export const protect = asyncHandler(async (req, res, next) => {
   let decoded;
 
   try {
-    decoded = jwt.verify(token, JWT_SECRET);
+    decoded = jwt.verify(token, env.JWT_SECRET);
   } catch (error) {
     return res.status(401).json({ message: "Invalid or expired token" });
   }

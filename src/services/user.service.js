@@ -4,12 +4,9 @@ import { throwError } from "../utils/errorHandler.js";
 
 export const profileService = async (userId) => {
   const user = await User.findById(userId).select(
-    "firstName lastName email avatar createdAt",
+    "firstName lastName email avatar role createdAt",
   );
 
-  // if (!user || user.isDeleted || !user.isActive) {
-  //   throwError("Account not accessible", 403);
-  // }
   if (!user) {
     throwError("User not found", 404);
   }
@@ -81,7 +78,6 @@ export const deactivateAccountService = async (userId) => {
   user.deactivatedAt = new Date();
   user.deactivatedBy = userId;
   user.deactivatedReason = "self";
-  user.tokenVersion += 1;
 
   await user.save();
 

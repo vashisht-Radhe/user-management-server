@@ -90,6 +90,7 @@ export const reactivateUserService = async (id) => {
   user.isActive = true;
   user.deactivatedAt = null;
   user.deactivatedBy = null;
+  user.deactivatedReason = null;
 
   await user.save();
 

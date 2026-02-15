@@ -20,10 +20,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const register = asyncHandler(async (req, res, next) => {
   const { user, token, otp } = await registerService(req.body);
 
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
   res.status(201).json({
     success: true,
     message: "User registered successfully",
-    data: { token, user },
+    data: user,
   });
 
   const expiresText = "in 10 minutes";
@@ -94,14 +101,17 @@ export const login = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "User signed in successfully",
-    data: {
-      token,
-      user: user,
-    },
+    data: user,
   });
 });
 
 export const logout = asyncHandler(async (req, res, next) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+  });
+
   res.status(200).json({
     success: true,
     message: "Logged out successfully",
