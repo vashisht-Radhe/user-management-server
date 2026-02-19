@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import Activity from "../models/activity.model.js";
 import User, { ROLES } from "../models/user.model.js";
 import { throwError } from "../utils/errorHandler.js";
 
@@ -21,6 +21,19 @@ export const getUserByIdService = async (id) => {
   if (!user) throwError("User not found", 404);
 
   return user;
+};
+
+export const getActionActivityService = async () => {
+  const [activities, total] = await Promise.all([
+    Activity.find().sort({ createdAt: -1 }).limit(100),
+
+    Activity.countDocuments(),
+  ]);
+
+  return {
+    total,
+    activities,
+  };
 };
 
 export const updateUserRoleService = async ({ id, role, adminId }) => {

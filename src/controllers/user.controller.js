@@ -10,6 +10,8 @@ import {
   updateProfileService,
 } from "../services/user.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import ACTIVITY_TYPES from "../constants/activityTypes.js";
+import logActivity from "../utils/logActivity.js";
 
 export const getMyProfile = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
@@ -29,6 +31,13 @@ export const updateMyProfile = asyncHandler(async (req, res, next) => {
 
   const user = await updateProfileService({ userId, firstName, lastName });
 
+  await logActivity({
+    user,
+    action: ACTIVITY_TYPES.PROFILE_UPDATED,
+    description: "User updated profile",
+    req,
+  });
+
   res.status(200).json({
     success: true,
     message: "Profile updated successfully",
@@ -44,6 +53,13 @@ export const changePassword = asyncHandler(async (req, res, next) => {
     userId,
     currentPassword,
     newPassword,
+  });
+
+  await logActivity({
+    user,
+    action: ACTIVITY_TYPES.PASSWORD_CHANGED,
+    description: "User changed password",
+    req,
   });
 
   res.status(200).json({
@@ -77,6 +93,13 @@ export const updateProfilePic = asyncHandler(async (req, res, next) => {
     await safeDelete(getUploadPath(oldAvatar));
   }
 
+  await logActivity({
+    user,
+    action: ACTIVITY_TYPES.PROFILE_UPDATED,
+    description: "User updated profile picture",
+    req,
+  });
+
   res.status(200).json({
     success: true,
     message: "Profile picture updated successfully",
@@ -89,6 +112,19 @@ export const deactivateAccount = asyncHandler(async (req, res, next) => {
 
   const deactivatedAt = await deactivateAccountService(userId);
 
+  await logActivity({
+    user: req.user,
+    action: ACTIVITY_TYPES.ACCOUNT_DEACTIVATED,
+    description: "User deactivated account",
+    req,
+  });
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+  });
+
   res.status(200).json({
     success: true,
     deactivatedAt,
@@ -96,13 +132,31 @@ export const deactivateAccount = asyncHandler(async (req, res, next) => {
   });
 });
 
-export const deleteAccount = asyncHandler(async (req, res, next) => {
+export const deleteAccount = asyncHandler(async (req, res) => {
   const { _id: userId } = req.user;
   const { password } = req.body;
 
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
   await deleteAccountService({ userId, password });
 
-  res.status(200).json({
+  await logActivity({
+    user,
+    action: ACTIVITY_TYPES.USER_DELETED,
+    description: "User permanently deleted account",
+    req,
+  });
+
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+  });
+
+  return res.status(200).json({
     success: true,
     message: "Your account has been permanently deleted",
   });

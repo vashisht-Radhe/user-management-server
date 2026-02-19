@@ -11,6 +11,7 @@ import {
   notFoundMiddleware,
 } from "./middlewares/error.middleware.js";
 import router from "./routes/index.js";
+import { env } from "./config/env.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,7 +20,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: `http://localhost:${env.FRONTEND_URL}`,
     credentials: true,
   }),
 );
@@ -29,7 +30,7 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        imgSrc: ["'self'", "http://localhost:5500", "data:", "blob:"],
+        imgSrc: ["'self'", `http://localhost:${env.PORT}`, "data:", "blob:"],
         scriptSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
       },
@@ -39,7 +40,7 @@ app.use(
     },
   }),
 );
-app.use(morgan());
+app.use(morgan("combined"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

@@ -4,7 +4,7 @@ import { throwError } from "../utils/errorHandler.js";
 
 export const profileService = async (userId) => {
   const user = await User.findById(userId).select(
-    "firstName lastName email avatar role createdAt",
+    "firstName lastName email avatar role createdAt isVerified",
   );
 
   if (!user) {

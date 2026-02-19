@@ -1,3 +1,4 @@
+import ACTIVITY_TYPES from "../constants/activityTypes.js";
 import {
   getUsersService,
   getUserByIdService,
@@ -5,8 +6,10 @@ import {
   deactivateUserService,
   deleteUserService,
   reactivateUserService,
+  getActionActivityService,
 } from "../services/admin.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import logActivity from "../utils/logActivity.js";
 
 export const getUsers = asyncHandler(async (req, res, next) => {
   const { includeDelete } = req.query;
@@ -33,6 +36,16 @@ export const getUserById = asyncHandler(async (req, res, next) => {
   });
 });
 
+export const getActionActivity = asyncHandler(async (req, res) => {
+  const data = await getActionActivityService();
+
+  res.status(200).json({
+    success: true,
+    total: data.total,
+    activities: data.activities,
+  });
+});
+
 export const updateUserRole = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { role } = req.body;
@@ -53,6 +66,14 @@ export const deactivateUser = asyncHandler(async (req, res, next) => {
 
   const user = await deactivateUserService({ id, adminId });
 
+  await logActivity({
+    user: req.user,
+    action: ACTIVITY_TYPES.ADMIN_DEACTIVATED_USER,
+    description: "Admin deactivated user account",
+    targetUser: user,
+    req,
+  });
+
   res.status(200).json({
     success: true,
     message: "User deactivated successfully",
@@ -71,6 +92,14 @@ export const reactivateUser = asyncHandler(async (req, res, next) => {
 
   const user = await reactivateUserService(id);
 
+  await logActivity({
+    user: req.user,
+    action: ACTIVITY_TYPES.ADMIN_ACTIVATED_USER,
+    description: "Admin activated user account",
+    targetUser: user,
+    req,
+  });
+
   res.status(200).json({
     success: true,
     message: "User activated successfully",
@@ -86,6 +115,14 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
   const { _id: adminId } = req.user;
 
   const user = await deleteUserService({ id, adminId });
+
+  await logActivity({
+    user: req.user,
+    action: ACTIVITY_TYPES.ADMIN_DELETED_USER,
+    description: "Admin deleted user account",
+    targetUser: user,
+    req,
+  });
 
   res.status(200).json({
     success: true,

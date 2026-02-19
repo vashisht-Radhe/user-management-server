@@ -20,7 +20,7 @@ import {
 import { authLimiter } from "../config/rateLimiter.js";
 
 const authRoutes = express.Router();
-authRoutes.use(authLimiter);
+// authRoutes.use(authLimiter);
 
 authRoutes.post("/register", validate(registerSchema), register);
 authRoutes.post("/login", validate(loginSchema), login);
