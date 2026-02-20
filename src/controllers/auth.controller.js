@@ -122,8 +122,6 @@ export const login = asyncHandler(async (req, res, next) => {
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
-  console.log(token);
-
   await logActivity({
     user,
     action: ACTIVITY_TYPES.USER_LOGIN,

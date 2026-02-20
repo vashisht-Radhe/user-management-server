@@ -37,11 +37,19 @@ export const getUserById = asyncHandler(async (req, res, next) => {
 });
 
 export const getActionActivity = asyncHandler(async (req, res) => {
-  const data = await getActionActivityService();
+  const { page, limit } = req.query;
+
+  const data = await getActionActivityService({
+    page,
+    limit,
+  });
 
   res.status(200).json({
     success: true,
     total: data.total,
+    page: data.page,
+    limit: data.limit,
+    totalPages: data.totalPages,
     activities: data.activities,
   });
 });

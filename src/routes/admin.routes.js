@@ -25,7 +25,7 @@ const adminRoutes = express.Router();
 adminRoutes.use(protect, authorize("admin"));
 
 adminRoutes.get("/", validate(getUsersSchema), getUsers);
-adminRoutes.get("/activity", getActionActivity);
+adminRoutes.get("/activities", getActionActivity);
 adminRoutes.get("/:id", validate(userIdParamSchema), getUserById);
 
 adminRoutes.use(adminLimiter);

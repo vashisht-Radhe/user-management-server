@@ -56,7 +56,7 @@ export const changePassword = asyncHandler(async (req, res, next) => {
   });
 
   await logActivity({
-    user,
+    user: req.user,
     action: ACTIVITY_TYPES.PASSWORD_CHANGED,
     description: "User changed password",
     req,
@@ -94,7 +94,7 @@ export const updateProfilePic = asyncHandler(async (req, res, next) => {
   }
 
   await logActivity({
-    user,
+    user: req.user,
     action: ACTIVITY_TYPES.PROFILE_UPDATED,
     description: "User updated profile picture",
     req,

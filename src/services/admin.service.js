@@ -23,15 +23,29 @@ export const getUserByIdService = async (id) => {
   return user;
 };
 
-export const getActionActivityService = async () => {
+export const getActionActivityService = async ({
+  page = 1,
+  limit = 10,
+} = {}) => {
+  const MAX_LIMIT = 50;
+
+  const safePage = Math.max(Number(page), 1);
+
+  const safeLimit = Math.min(Math.max(Number(limit), 1), MAX_LIMIT);
+
+  const skip = (safePage - 1) * safeLimit;
+
   const [activities, total] = await Promise.all([
-    Activity.find().sort({ createdAt: -1 }).limit(100),
+    Activity.find().sort({ createdAt: -1 }).skip(skip).limit(safeLimit),
 
     Activity.countDocuments(),
   ]);
 
   return {
     total,
+    page: safePage,
+    limit: safeLimit,
+    totalPages: Math.ceil(total / safeLimit),
     activities,
   };
 };

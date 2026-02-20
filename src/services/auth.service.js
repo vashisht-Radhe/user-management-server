@@ -141,8 +141,6 @@ export const forgetPasswordService = async (email) => {
 
   const resetLink = `http://localhost:${env.FRONTEND_URL}/reset-password?token=${token}`;
 
-  console.log("Password Reset Link:", resetLink);
-
   const expiresText = "15 minutes";
 
   await sendForgetPassword({
