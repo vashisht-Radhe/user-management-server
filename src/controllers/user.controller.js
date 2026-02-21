@@ -12,9 +12,8 @@ import {
 import { asyncHandler } from "../utils/asyncHandler.js";
 import ACTIVITY_TYPES from "../constants/activityTypes.js";
 import logActivity from "../utils/logActivity.js";
-import { env } from "../config/env.js";
 
-const isProduction = env.NODE_ENV === "production";
+const isProduction = process.NODE_ENV === "production";
 
 export const getMyProfile = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;

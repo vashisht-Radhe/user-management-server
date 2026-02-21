@@ -19,9 +19,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import logActivity from "../utils/logActivity.js";
 import ACTIVITY_TYPES from "../constants/activityTypes.js";
 import crypto from "crypto";
-import { env } from "../config/env.js";
 
-const isProduction = env.NODE_ENV === "production";
+const isProduction = process.NODE_ENV === "production";
 
 export const register = asyncHandler(async (req, res, next) => {
   const { user, token, otp } = await registerService(req.body);
