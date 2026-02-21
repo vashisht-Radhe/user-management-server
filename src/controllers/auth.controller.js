@@ -20,7 +20,7 @@ import logActivity from "../utils/logActivity.js";
 import ACTIVITY_TYPES from "../constants/activityTypes.js";
 import crypto from "crypto";
 
-const isProduction = process.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "production";
 
 export const register = asyncHandler(async (req, res, next) => {
   const { user, token, otp } = await registerService(req.body);
