@@ -22,7 +22,8 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: [env.FRONTEND_URL, "https://user-management-six-delta.vercel.app"],
+
     credentials: true,
   }),
 );
