@@ -19,14 +19,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import logActivity from "../utils/logActivity.js";
 import ACTIVITY_TYPES from "../constants/activityTypes.js";
 import crypto from "crypto";
+import { env } from "../config/env.js";
+
+const isProduction = env.NODE_ENV === "production";
 
 export const register = asyncHandler(async (req, res, next) => {
   const { user, token, otp } = await registerService(req.body);
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -117,8 +120,8 @@ export const login = asyncHandler(async (req, res, next) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -148,8 +151,8 @@ export const logout = asyncHandler(async (req, res, next) => {
 
   res.clearCookie("token", {
     httpOnly: true,
-    secure: false,
-    sameSite: "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
 
   res.status(200).json({

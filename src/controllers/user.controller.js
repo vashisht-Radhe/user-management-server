@@ -12,6 +12,9 @@ import {
 import { asyncHandler } from "../utils/asyncHandler.js";
 import ACTIVITY_TYPES from "../constants/activityTypes.js";
 import logActivity from "../utils/logActivity.js";
+import { env } from "../config/env.js";
+
+const isProduction = env.NODE_ENV === "production";
 
 export const getMyProfile = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
@@ -121,8 +124,8 @@ export const deactivateAccount = asyncHandler(async (req, res, next) => {
 
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
 
   res.status(200).json({
@@ -152,8 +155,8 @@ export const deleteAccount = asyncHandler(async (req, res) => {
 
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
   });
 
   return res.status(200).json({
