@@ -139,7 +139,7 @@ export const forgetPasswordService = async (email) => {
 
   await user.save();
 
-  const resetLink = `http://localhost:${env.FRONTEND_URL}/reset-password?token=${token}`;
+  const resetLink = `${env.FRONTEND_URL}/reset-password?token=${token}`;
 
   const expiresText = "15 minutes";
 

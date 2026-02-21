@@ -1,12 +1,20 @@
 import { config } from "dotenv";
 import { z } from "zod";
 
-config({ path: `.env.${process.env.NODE_ENV || "development"}.local` });
+// if (process.env.NODE_ENV !== "production") {
+//   config({ path: `.env.${process.env.NODE_ENV || "development"}.local` });
+// }
+
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+config({
+  path: `.env.${NODE_ENV}.local`,
+});
 
 const envSchema = z.object({
   PORT: z.coerce.number().default(5500),
 
-  FRONTEND_URL: z.coerce.number().default(5173),
+  FRONTEND_URL: z.string().url().default("http://localhost:5173"),
 
   NODE_ENV: z.enum(["development", "production", "test"]),
 

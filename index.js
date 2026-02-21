@@ -5,5 +5,5 @@ import connectDB from "./src/database/mongodb.js";
 await connectDB();
 
 app.listen(env.PORT, () => {
-  console.log(`✅ Server is running on the http://localhost:${env.PORT}`);
+  console.log(`✅ Server is running on the ${env.PORT}`);
 });

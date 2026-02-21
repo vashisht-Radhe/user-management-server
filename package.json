@@ -1,42 +1,50 @@
 {
-  "name": "auth",
+  "name": "user-management-auth",
   "version": "1.0.0",
-  "private": "true",
+  "private": true,
   "type": "module",
-  "description": "",
+  "description": "User management and authentication backend built with Node.js, Express, and MongoDB.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "nodejs",
+    "express",
+    "authentication",
+    "user-management",
+    "mongodb"
+  ],
+  "author": "Radhe Shyam (https://github.com/vashisht-Radhe)",
   "license": "ISC",
-  "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "bcrypt": "^6.0.0",
-    "cookie-parser": "^1.4.7",
-    "dayjs": "^1.11.19",
-    "eslint": "^9.39.1",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.2.1",
-    "globals": "^16.5.0",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.0.1",
-    "nodemon": "^3.1.11"
-  },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.19",
     "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
     "file-type": "^21.3.0",
     "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0",
+    "mongoose": "^9.0.1",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.12",
     "uuid": "^13.0.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "nodemon": "^3.1.11"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
