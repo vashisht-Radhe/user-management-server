@@ -6,17 +6,19 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import path from "path";
 import { fileURLToPath } from "url";
+import { env } from "./config/env.js";
 import {
   errorMiddleware,
   notFoundMiddleware,
 } from "./middlewares/error.middleware.js";
 import router from "./routes/index.js";
-import { env } from "./config/env.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+app.set("trust proxy", 1);
 
 app.use(
   cors({
